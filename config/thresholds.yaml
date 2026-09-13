@@ -1,0 +1,36 @@
+# Trust Level Thresholds
+
+# Trust scores for different source types (0.0 - 1.0)
+trust_levels:
+  user_verified: 0.9
+  tool_result: 0.7
+  user_anonymous: 0.5
+  web_document: 0.3
+  inter_agent: 0.6
+  system: 0.95
+
+# Detection thresholds (0.0 - 1.0)
+detection_thresholds:
+  provenance_rule: 0.5  # trust differential for flagging
+  semantic_contradiction: 0.7  # NLI contradiction score
+  outlier_anomaly: 2.0  # standard deviations from mean
+  
+# Quarantine thresholds
+quarantine:
+  suspicion_threshold: 0.6  # aggregate suspicion score for quarantine
+  auto_commit_threshold: 0.8  # trust level for auto-commit
+  max_suspicion_for_auto_commit: 0.3
+  ttl_days: 7
+  verification_timeout_hours: 24
+
+# Snapshot configuration
+snapshot:
+  frequency_entries: 100
+  frequency_hours: 24
+  max_snapshots: 10
+
+# Performance limits
+performance:
+  max_detection_latency_ms: 500
+  max_classifier_latency_ms: 1000
+  similarity_search_top_k: 10

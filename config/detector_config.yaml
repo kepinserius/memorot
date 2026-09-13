@@ -1,0 +1,38 @@
+# Detector Configuration
+
+detector_weights:
+  provenance_rules: 0.3
+  semantic_drift: 0.4
+  outlier_detection: 0.2
+  injection_classifier: 0.1
+
+# Models configuration
+models:
+  embedding:
+    name: "all-MiniLM-L6-v2"
+    dimension: 384
+    
+  nli:
+    name: "microsoft/deberta-base-mnli"
+    batch_size: 8
+    
+  injection_classifier:
+    type: "llm_as_judge"
+    # future: "fine_tuned" with model_path
+    
+# Vector database
+vector_db:
+  provider: "chroma"
+  collection_name: "memory_events"
+  persist_directory: "./data/chroma_db"
+  
+# Audit database
+audit_db:
+  provider: "sqlite"
+  connection_string: "./data/audit.db"
+  
+# Logging
+logging:
+  level: "INFO"
+  format: "json"
+  file: "./logs/memrot.log"
