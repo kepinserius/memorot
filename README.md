@@ -67,10 +67,3 @@ pytest tests/
 ## Configuration
 
 Edit `config/thresholds.yaml` and `config/detector_config.yaml` for custom settings.
-
-## Status
-
-**Current Phase:** Instrumentation Layer ✓
-**Next:** Detection Layer implementation
-
-See `.agents/3-TASKS.md` for full task list.

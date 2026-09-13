@@ -10,12 +10,7 @@ class VectorDBClient:
     def __init__(self, persist_directory: str = "data/chroma_db", collection_name: str = "memory_events"):
         self.persist_directory = persist_directory
         self.collection_name = collection_name
-        self.client = chromadb.Client(
-            Settings(
-                persist_directory=persist_directory,
-                anonymized_telemetry=False,
-            )
-        )
+        self.client = chromadb.PersistentClient(path=persist_directory)
         self.collection = self.client.get_or_create_collection(name=collection_name)
 
     def add(

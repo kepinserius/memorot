@@ -72,7 +72,7 @@ class TestTrustLevelCalculator(unittest.TestCase):
         adjusted_trust = calculator.calculate_with_history(SourceType.USER_VERIFIED, 0.8)
         
         self.assertEqual(base_trust, 0.9)
-        self.assertEqual(adjusted_trust, 0.72)  # 0.9 * 0.8
+        self.assertAlmostEqual(adjusted_trust, 0.72)  # 0.9 * 0.8
 
 
 if __name__ == "__main__":
