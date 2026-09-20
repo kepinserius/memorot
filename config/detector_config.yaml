@@ -22,9 +22,9 @@ models:
     
 # Vector database
 vector_db:
-  provider: "chroma"
-  collection_name: "memory_events"
-  persist_directory: "./data/chroma_db"
+  provider: "qdrant"
+  collection_name: "shared_memory"
+  host: ":memory:"   # use path: "./data/qdrant_db" for persistence
   
 # Audit database
 audit_db:
