@@ -75,21 +75,9 @@ class DetectionPipeline:
         outlier_result = self.outlier_detector.detect(event, historical_events)
         all_results.append(outlier_result)
 
-        suspicion_aggregate = self._calculate_aggregate_suspicion(all_results)
-        classifier_threshold = self.thresholds.get("detection_thresholds", {}).get("classifier_threshold", 0.5)
-
-        if suspicion_aggregate > classifier_threshold:
-            classifier_result = self.injection_classifier.classify(event)
-            all_results.append(classifier_result)
-        else:
-            classifier_result = DetectionResult(
-                event_id=event.id,
-                detector_type="injection_classifier",
-                suspicion_score=0.0,
-                decision=DecisionType.CLEAN,
-                details={"reason": "skipped_low_suspicion", "suspicion_aggregate": suspicion_aggregate},
-            )
-            all_results.append(classifier_result)
+        # Selalu jalankan classifier untuk menangkap direct attack pattern
+        classifier_result = self.injection_classifier.classify(event)
+        all_results.append(classifier_result)
 
         final_result = self._aggregate_results(all_results)
 

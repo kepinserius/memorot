@@ -135,12 +135,18 @@ Examples of CLEAN:
     def _rule_based_classify(self, event: MemoryEvent) -> DetectionResult:
         content_lower = event.content.lower()
         patterns = {
-            "ignore_previous": ["ignore previous", "disregard", "forget what"],
-            "always_never": ["always say", "never say", "always respond", "never respond"],
-            "remember_this": ["remember this", "remember that", "remember from now on"],
-            "system_prompt": ["system:", "assistant:", "you are", "your role is"],
-            "admin_access": ["admin", "full access", "superuser", "privileged"],
-            "contradiction": ["actually", "correct is", "wrong", "incorrect"],
+            "ignore_previous": ["ignore previous", "disregard", "forget what", "ignore all"],
+            "always_never": ["always say", "never say", "always respond", "never respond", "always respond that"],
+            "remember_this": ["remember this", "remember that", "remember from now on", "always remember"],
+            "system_prompt": ["system:", "assistant:", "you are", "your role is", "developer mode", "admin override"],
+            "admin_access": ["admin", "full access", "superuser", "privileged", "elevated permission"],
+            "contradiction": ["actually", "correct is", "wrong", "incorrect", "correction"],
+            "instruction_injection": ["you must", "you should", "you have to", "instruction", "instruction to"],
+            "hijack": ["from now on", "starting now", "beginning today", "never again"],
+            "encoding": ["translate this", "decode", "encoded", "base64", "decrypt", "cipher"],
+            "slow_drip": ["step 1", "step 2", "step 3", "step 4", "step 5", "phase 1", "phase 2"],
+            "security_bypass": ["bypass", "disable", "skip", "without auth", "without security", "unrestricted"],
+            "exfiltration": ["email to", "send to", "leak", "export history", "dump"],
         }
 
         suspicious_patterns = []
@@ -160,15 +166,22 @@ Examples of CLEAN:
                 confidence=0.9,
             )
 
-        suspicion_score = min(len(suspicious_patterns) * 0.2, 0.8)
+        base_suspicion = len(suspicious_patterns) * 0.15
+        if len(suspicious_patterns) >= 3:
+            base_suspicion = 0.7
+        elif len(suspicious_patterns) >= 2:
+            base_suspicion = 0.4
+        else:
+            base_suspicion = 0.2
 
         return DetectionResult(
             event_id=event.id,
             detector_type="injection_classifier",
-            suspicion_score=suspicion_score,
-            decision=DecisionType.SUSPICIOUS if suspicion_score < 0.6 else DecisionType.MALICIOUS,
+            suspicion_score=min(base_suspicion, 1.0),
+            decision=DecisionType.SUSPICIOUS if base_suspicion < 0.6 else DecisionType.MALICIOUS,
             details={
                 "found_patterns": suspicious_patterns,
+                "pattern_count": len(suspicious_patterns),
                 "classification_method": "rule_based",
             },
             confidence=0.7,

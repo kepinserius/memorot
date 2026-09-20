@@ -79,6 +79,7 @@ class MemoryMiddleware:
         session_id: str = "",
         limit: int = 10,
         filters: Optional[Dict[str, Any]] = None,
+        query_vector: Optional[List[float]] = None,
     ) -> List[Any]:
         logger.info(
             "memory_read_intercepted",
