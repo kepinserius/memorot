@@ -1,4 +1,4 @@
-"""Vector store abstraction layer."""
-from .qdrant_client import QdrantVectorStore
+"""Vector store package."""
+from .chroma_client import VectorDBClient
 
-__all__ = ["QdrantVectorStore"]
+__all__ = ["VectorDBClient"]
