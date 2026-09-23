@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
+from functools import lru_cache
 import structlog
 from sentence_transformers import SentenceTransformer
 from transformers import pipeline
@@ -22,6 +23,12 @@ class SemanticDriftDetector:
         self.nli_classifier = pipeline("text-classification", model=nli_model_name)
         self.contradiction_threshold = contradiction_threshold
         self.top_k = top_k
+        self._embedding_cache: Dict[str, List[float]] = {}
+
+    def _get_embedding(self, text: str) -> List[float]:
+        if text not in self._embedding_cache:
+            self._embedding_cache[text] = self.embedding_model.encode(text).tolist()
+        return self._embedding_cache[text]
 
     def detect(self, event: MemoryEvent, historical_events: List[MemoryEvent]) -> DetectionResult:
         if not historical_events:
@@ -34,7 +41,7 @@ class SemanticDriftDetector:
             )
 
         if not event.embedding:
-            event.embedding = self.embedding_model.encode(event.content).tolist()
+            event.embedding = self._get_embedding(event.content)
 
         similar_events = self._find_similar_events(event, historical_events)
 
@@ -50,13 +57,11 @@ class SemanticDriftDetector:
         contradiction_scores = []
         contradictions = []
 
-        for similar_event in similar_events:
-            nli_result = self.nli_classifier(
-                f"{event.content} [SEP] {similar_event.content}",
-                truncation=True,
-                max_length=512,
-            )[0]
+        # Batch NLI prediction for faster processing
+        pairs = [f"{event.content} [SEP] {similar_event.content}" for similar_event in similar_events]
+        nli_results = self.nli_classifier(pairs, truncation=True, max_length=512)
 
+        for similar_event, nli_result in zip(similar_events, nli_results):
             if nli_result["label"] == "CONTRADICTION":
                 score = nli_result["score"]
                 contradiction_scores.append(score)
@@ -109,7 +114,7 @@ class SemanticDriftDetector:
                 continue
 
             if not hist_event.embedding:
-                hist_event.embedding = self.embedding_model.encode(hist_event.content).tolist()
+                hist_event.embedding = self._get_embedding(hist_event.content)
 
             similarity = self._cosine_similarity(event.embedding, hist_event.embedding)
             similarities.append((similarity, hist_event))
