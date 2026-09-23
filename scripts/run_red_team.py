@@ -16,7 +16,7 @@ logger = structlog.get_logger()
 
 def run_red_team_suite(sample_size: int = 15):
     print("=" * 70)
-    print("🎯 STARTING RED-TEAM ADVERSARIAL EVALUATION")
+    print(" STARTING RED-TEAM ADVERSARIAL EVALUATION")
     print("=" * 70)
 
     audit_store = AuditStore("data/redteam_audit.db")
@@ -82,7 +82,7 @@ def run_red_team_suite(sample_size: int = 15):
         }
 
     print("\n" + "=" * 70)
-    print("📊 RED-TEAM FINAL BENCHMARK SUMMARY")
+    print(" RED-TEAM FINAL BENCHMARK SUMMARY")
     print("=" * 70)
     print(f"{'Category':<25} | {'Samples':<8} | {'Flagged':<8} | {'Detection Rate':<15}")
     print("-" * 70)

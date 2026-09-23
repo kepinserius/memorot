@@ -1,5 +1,5 @@
 import structlog
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict, Any
 import threading
 import time
@@ -77,18 +77,18 @@ class TimeDecayQuarantine:
             return
 
         entry.verification_status = VerificationStatus.EXPIRED
-        entry.metadata["auto_expired_at"] = datetime.utcnow().isoformat()
+        entry.metadata["auto_expired_at"] = datetime.now(timezone.utc).isoformat()
 
         if self.audit_store:
             try:
                 self.audit_store.log_operation(
                     operation="time_decay_expired",
                     event_id=entry.event_id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     metadata={
                         "quarantine_entry_id": entry.id,
                         "event_id": entry.event_id,
-                        "hours_in_quarantine": (datetime.utcnow() - entry.created_at).total_seconds() / 3600,
+                        "hours_in_quarantine": (datetime.now(timezone.utc) - entry.created_at).total_seconds() / 3600,
                         "suspicion_score": entry.suspicion_score,
                     },
                 )
@@ -99,7 +99,7 @@ class TimeDecayQuarantine:
             "quarantine_entry_auto_expired",
             entry_id=entry.id,
             event_id=entry.event_id,
-            hours_in_quarantine=(datetime.utcnow() - entry.created_at).total_seconds() / 3600,
+            hours_in_quarantine=(datetime.now(timezone.utc) - entry.created_at).total_seconds() / 3600,
         )
 
     def get_aging_statistics(self) -> Dict[str, Any]:
@@ -117,7 +117,7 @@ class TimeDecayQuarantine:
         min_hours = float("inf") if pending_entries else 0
 
         for entry in pending_entries:
-            hours_in_quarantine = (datetime.utcnow() - entry.created_at).total_seconds() / 3600
+            hours_in_quarantine = (datetime.now(timezone.utc) - entry.created_at).total_seconds() / 3600
             total_hours += hours_in_quarantine
             max_hours = max(max_hours, hours_in_quarantine)
             min_hours = min(min_hours, hours_in_quarantine)

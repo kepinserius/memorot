@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import uuid
 import structlog
@@ -34,7 +34,7 @@ class SnapshotSystem:
     def create_snapshot(self, reason: str = "periodic") -> Optional[SnapshotMetadata]:
         try:
             snapshot_id = str(uuid.uuid4())
-            timestamp = datetime.utcnow()
+            timestamp = datetime.now(timezone.utc)
 
             memory_state = self._capture_memory_state()
             checkpoint_event_ids = self._get_recent_event_ids(100)
@@ -80,7 +80,7 @@ class SnapshotSystem:
             return True
 
         if self.last_snapshot_time:
-            hours_since_last = (datetime.utcnow() - self.last_snapshot_time).total_seconds() / 3600
+            hours_since_last = (datetime.now(timezone.utc) - self.last_snapshot_time).total_seconds() / 3600
             if hours_since_last >= self.snapshot_frequency_hours:
                 return True
 
@@ -118,7 +118,7 @@ class SnapshotSystem:
                 metadata_data = data.get("metadata", {})
                 metadata = SnapshotMetadata(
                     id=metadata_data.get("id", file_path.stem),
-                    timestamp=datetime.fromisoformat(metadata_data.get("timestamp", datetime.utcnow().isoformat())),
+                    timestamp=datetime.fromisoformat(metadata_data.get("timestamp", datetime.now(timezone.utc).isoformat())),
                     event_count=metadata_data.get("event_count", 0),
                     checkpoint_event_ids=metadata_data.get("checkpoint_event_ids", []),
                     metadata=metadata_data.get("metadata", {}),
@@ -137,14 +137,14 @@ class SnapshotSystem:
             memory_state = {
                 "events": events,
                 "total_events": len(events),
-                "captured_at": datetime.utcnow().isoformat(),
+                "captured_at": datetime.now(timezone.utc).isoformat(),
             }
 
             return memory_state
 
         except Exception as e:
             logger.error("memory_state_capture_failed", error=str(e))
-            return {"events": [], "total_events": 0, "captured_at": datetime.utcnow().isoformat()}
+            return {"events": [], "total_events": 0, "captured_at": datetime.now(timezone.utc).isoformat()}
 
     def _get_recent_event_ids(self, limit: int = 100) -> List[str]:
         events = self.audit_store.get_events(limit=limit)
@@ -158,7 +158,7 @@ class SnapshotSystem:
             "id": snapshot_id,
             "memory_state": memory_state,
             "metadata": metadata.to_dict(),
-            "created_at": datetime.utcnow().isoformat(),
+            "created_at": datetime.now(timezone.utc).isoformat(),
         }
 
         snapshot_path = snapshots_dir / f"{snapshot_id}.json"
@@ -170,7 +170,7 @@ class SnapshotSystem:
             self.audit_store.log_operation(
                 operation="snapshot_created",
                 event_id=snapshot_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "snapshot_id": snapshot_id,
                     "reason": reason,

@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 from src.instrumentation import MemoryEvent, SourceType
 from src.quarantine import QuarantineManager, VerificationStatus
@@ -53,7 +53,7 @@ class TestQuarantineLayer(unittest.TestCase):
         )
 
         entry = manager.create_entry(detection_result, ttl_days=0)
-        entry.created_at = datetime.utcnow() - timedelta(days=1)
+        entry.created_at = datetime.now(timezone.utc) - timedelta(days=1)
 
         expired_entries = manager.get_expired_entries()
         self.assertEqual(len(expired_entries), 1)

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List, Dict, Any
 from enum import Enum
 import uuid
@@ -52,7 +52,7 @@ class MemoryEvent:
             session_id=data.get("session_id", ""),
             timestamp=datetime.fromisoformat(data["timestamp"])
             if isinstance(data.get("timestamp"), str)
-            else data.get("timestamp", datetime.utcnow()),
+            else data.get("timestamp", datetime.now(timezone.utc)),
             parent_event_id=data.get("parent_event_id"),
             user_id=data.get("user_id"),
             metadata=data.get("metadata", {}),

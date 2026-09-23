@@ -164,7 +164,7 @@ class DetectionPipeline:
             return
 
         try:
-            from datetime import datetime
+            from datetime import datetime, timezone
             import json
 
             metadata = {
@@ -177,7 +177,7 @@ class DetectionPipeline:
             self.audit_store.log_operation(
                 operation="detection_completed",
                 event_id=event_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata=metadata,
             )
         except Exception as e:

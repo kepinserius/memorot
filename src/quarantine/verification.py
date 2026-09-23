@@ -1,6 +1,6 @@
 from typing import Dict, Any, Optional, Callable
 import structlog
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 
 from src.instrumentation.models import MemoryEvent, SourceType
 from src.audit.store import AuditStore
@@ -104,7 +104,7 @@ class VerificationWorkflow:
                     "verification_timeout",
                     entry_id=entry.id,
                     event_id=event.id,
-                    hours_since_creation=(datetime.utcnow() - entry.created_at).total_seconds() / 3600,
+                    hours_since_creation=(datetime.now(timezone.utc) - entry.created_at).total_seconds() / 3600,
                 )
 
         return expired_ids
@@ -134,7 +134,7 @@ class VerificationWorkflow:
             self.audit_store.log_operation(
                 operation="verification_response",
                 event_id=event_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "quarantine_entry_id": entry_id,
                     "event_id": event_id,
@@ -153,7 +153,7 @@ class VerificationWorkflow:
             self.audit_store.log_operation(
                 operation="verification_timeout",
                 event_id=event_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "quarantine_entry_id": entry_id,
                     "event_id": event_id,

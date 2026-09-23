@@ -1,6 +1,6 @@
 from typing import Callable, Optional, Dict, Any, List
 import structlog
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .models import MemoryEvent, SourceType
 from .provenance import ProvenanceTracker
@@ -132,7 +132,7 @@ class MemoryMiddleware:
                 self.audit_store.log_operation(
                     operation=operation,
                     event_id=event.id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     metadata={
                         "content_length": len(event.content),
                         "source_type": event.source_type.value,
@@ -157,7 +157,7 @@ class MemoryMiddleware:
                     processed_query=processed_query,
                     result_count=len(results),
                     session_id=session_id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                 )
         except Exception as e:
             logger.error("audit_read_failed", error=str(e), session_id=session_id[:8])

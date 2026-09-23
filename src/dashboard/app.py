@@ -11,7 +11,7 @@ from src.detection.pipeline import DetectionPipeline
 
 st.set_page_config(page_title="Memory Poisoning Detection", layout="wide")
 
-st.title("🛡️ Memory Poisoning Detection Dashboard")
+st.title(" Memory Poisoning Detection Dashboard")
 
 audit_store = AuditStore()
 quarantine_manager = QuarantineManager(audit_store=audit_store)

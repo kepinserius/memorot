@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, List, Optional
 from enum import Enum
 
@@ -40,7 +40,7 @@ class DetectionResult:
             decision=DecisionType(data["decision"]),
             timestamp=datetime.fromisoformat(data["timestamp"])
             if isinstance(data.get("timestamp"), str)
-            else data.get("timestamp", datetime.utcnow()),
+            else data.get("timestamp", datetime.now(timezone.utc)),
             details=data.get("details", {}),
             confidence=data.get("confidence", 1.0),
         )

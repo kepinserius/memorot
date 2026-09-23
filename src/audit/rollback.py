@@ -1,5 +1,5 @@
 from typing import List, Dict, Any, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 import structlog
 import uuid
 
@@ -75,7 +75,7 @@ class RollbackManager:
         logger.info("rollback_started", snapshot_id=snapshot_id)
 
         rollback_id = str(uuid.uuid4())
-        start_time = datetime.utcnow()
+        start_time = datetime.now(timezone.utc)
 
         snapshot_data = self.snapshot_system.load_snapshot(snapshot_id)
         if not snapshot_data:
@@ -89,7 +89,7 @@ class RollbackManager:
         if replay_clean_events:
             replayed_events = self._replay_clean_events(snapshot_data, replay_limit)
 
-        duration = (datetime.utcnow() - start_time).total_seconds()
+        duration = (datetime.now(timezone.utc) - start_time).total_seconds()
 
         result = {
             "success": True,
@@ -177,7 +177,7 @@ class RollbackManager:
                 self.audit_store.log_operation(
                     operation="rollback_removed",
                     event_id=event["id"],
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(timezone.utc),
                     metadata={"snapshot_id": snapshot_data["id"], "reason": "post_snapshot_cleanup"},
                 )
 
@@ -246,7 +246,7 @@ class RollbackManager:
             self.audit_store.log_operation(
                 operation="rollback_completed",
                 event_id=rollback_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "rollback_id": rollback_id,
                     "snapshot_id": snapshot_id,

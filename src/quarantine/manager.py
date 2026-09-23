@@ -1,6 +1,6 @@
 from typing import List, Optional, Dict, Any
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 import structlog
 
 from src.audit.store import AuditStore
@@ -69,7 +69,7 @@ class QuarantineManager:
             entry.verification_status = VerificationStatus.EXPIRED
         else:
             entry.verification_status = VerificationStatus.VERIFIED if verified else VerificationStatus.REJECTED
-            entry.verified_at = datetime.utcnow()
+            entry.verified_at = datetime.now(timezone.utc)
             entry.metadata["user_id"] = user_id
 
         if self.audit_store:
@@ -149,7 +149,7 @@ class QuarantineManager:
             self.audit_store.log_operation(
                 operation=f"quarantine_{action}",
                 event_id=event_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 metadata={
                     "quarantine_entry_id": entry_id,
                     "event_id": event_id,

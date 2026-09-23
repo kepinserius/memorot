@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 import uuid
 import structlog
@@ -22,7 +22,7 @@ class EventSourcing:
         additional_metadata: Optional[Dict[str, Any]] = None,
     ) -> EventLogEntry:
         event_id = str(uuid.uuid4())
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
 
         metadata = {
             "event_content": event.content[:200],

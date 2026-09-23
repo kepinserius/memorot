@@ -1,6 +1,6 @@
 from typing import Optional, Dict, Any, List
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from .models import MemoryEvent, SourceType
 from .trust_level import TrustLevelCalculator
 
@@ -29,7 +29,7 @@ class ProvenanceTracker:
             source_type=source_type,
             trust_level=trust_level,
             session_id=session_id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(timezone.utc),
             parent_event_id=parent_event_id,
             user_id=user_id,
             metadata=metadata or {},

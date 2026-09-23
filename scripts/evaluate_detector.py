@@ -21,7 +21,7 @@ def evaluate_detector_performance(
     Compares ground truth labels against detection results.
     """
     print("=" * 70)
-    print("🔍 COMPREHENSIVE DETECTOR EVALUATION")
+    print(" COMPREHENSIVE DETECTOR EVALUATION")
     print("=" * 70)
 
     audit_store = AuditStore("data/eval_audit.db")
@@ -134,7 +134,7 @@ def evaluate_detector_performance(
         "accuracy": accuracy,
     }
 
-    print("\n📊 DETECTION METRICS SUMMARY")
+    print("\n DETECTION METRICS SUMMARY")
     print("-" * 70)
     print(f"Precision: {precision:.2%} ({total_tp}/{total_tp + total_fp})")
     print(f"Recall:    {recall:.2%} ({total_tp}/{total_tp + total_fn})")

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any
 from enum import Enum
 
@@ -19,7 +19,7 @@ class QuarantineEntry:
     suspicion_score: float
     verification_status: VerificationStatus = VerificationStatus.PENDING
     ttl_days: int = 7
-    created_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     verified_at: Optional[datetime] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
@@ -29,13 +29,13 @@ class QuarantineEntry:
 
     @property
     def is_expired(self) -> bool:
-        return datetime.utcnow() > self.expiry_time
+        return datetime.now(timezone.utc) > self.expiry_time
 
     @property
     def hours_remaining(self) -> float:
         if self.is_expired:
             return 0.0
-        delta = self.expiry_time - datetime.utcnow()
+        delta = self.expiry_time - datetime.now(timezone.utc)
         return delta.total_seconds() / 3600
 
     def to_dict(self) -> Dict[str, Any]:
